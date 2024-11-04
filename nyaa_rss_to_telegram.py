@@ -22,9 +22,12 @@ feed = feedparser.parse(RSS_FEED_URL)
 if feed.bozo:
     raise Exception("Failed to parse RSS feed.")
 
-# Loop through the latest entries
+# Process only the last 10 entries
+latest_entries = feed.entries[:10]  # Get the last 10 entries
 new_entries = []
-for entry in feed.entries:  # Iterate over all entries
+
+# Filter new entries that have not been sent before
+for entry in latest_entries:
     guid = entry.get("guid", "N/A")  # GUID of the item
 
     # If the GUID has already been sent, skip this entry
@@ -38,26 +41,26 @@ if not new_entries:
     print("No new entries to send.")
 else:
     # Send all new entries to Telegram
-    for entry in new_entries:  # Send all new entries
+    for entry in new_entries:
         guid = entry.get("guid", "N/A")  # GUID of the item
         title = entry.title
         link = entry.link
-        seeders = entry.get("nyaa_seeders", "N/A")  # Accessing nyaa:seeders
-        leechers = entry.get("nyaa_leechers", "N/A")  # Accessing nyaa:leechers
-        size = entry.get("nyaa_size", "N/A")  # Accessing nyaa:size
+        seeders = entry.get("nyaa:seeders", "N/A")  # Accessing nyaa:seeders
+        leechers = entry.get("nyaa:leechers", "N/A")  # Accessing nyaa:leechers
+        size = entry.get("nyaa:size", "N/A")  # Accessing nyaa:size
 
         # Format the message
         message = (
             f"<b>{title}</b>\n"
             f"Link: <a href='{link}'>Download Torrent</a>\n"
-            f"Guid: <a href='{guid}'>Open In Browser</a>\n"
             f"Seeders: {seeders}\n"
             f"Leechers: {leechers}\n"
             f"Size: {size}\n"
         )
 
         # Send message to Telegram with retry logic
-        for attempt in range(5):  # Try up to 5 times
+        attempt = 0
+        while attempt < 5:  # Try up to 5 times
             telegram_api_url = f"https://api.telegram.org/bot{os.environ['TELEGRAM_BOT_TOKEN']}/sendMessage"
             payload = {
                 'chat_id': os.environ['TELEGRAM_CHAT_ID'],
@@ -68,13 +71,16 @@ else:
 
             # Check for errors
             if response.status_code == 200:
+                print(f"Sent message for {title}")
                 break  # Exit the retry loop if the request was successful
             elif response.status_code == 429:  # Rate limit exceeded
                 retry_after = response.json().get("parameters", {}).get("retry_after", 1)
                 print(f"Rate limit exceeded. Retrying after {retry_after} seconds...")
                 time.sleep(retry_after)  # Wait for the specified time before retrying
+                attempt += 1
             else:
-                raise Exception(f"Failed to send message: {response.text}")
+                print(f"Failed to send message: {response.text}")
+                break  # Exit loop on other errors
 
         # Add the GUID to the sent list
         sent_guids.append(guid)
