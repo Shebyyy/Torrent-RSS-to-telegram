@@ -16,9 +16,9 @@ if feed.bozo:
 for entry in feed.entries[:5]:  # Adjust the number as needed
     title = entry.title
     link = entry.link
-    seeders = entry.get("nyaa:seeders", "N/A")
-    leechers = entry.get("nyaa:leechers", "N/A")
-    size = entry.get("nyaa:size", "N/A")
+    seeders = entry.get("nyaa:seeders", "N/A")  # Accessing with namespace
+    leechers = entry.get("nyaa:leechers", "N/A")  # Accessing with namespace
+    size = entry.get("nyaa:size", "N/A")  # Accessing with namespace
 
     # Format the message
     message = (
