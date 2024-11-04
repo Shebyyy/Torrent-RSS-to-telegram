@@ -14,9 +14,6 @@ if os.path.exists(sent_guid_file):
 else:
     sent_guids = []
 
-# Define the number of entries to keep track of
-MAX_SENT_ENTRIES = 5
-
 # Parse the RSS feed
 feed = feedparser.parse(RSS_FEED_URL)
 
@@ -39,8 +36,8 @@ for entry in feed.entries:  # Iterate over all entries
 if not new_entries:
     print("No new entries to send.")
 else:
-    # Send the new entries to Telegram
-    for entry in new_entries[:5]:  # Adjust the number as needed
+    # Send all new entries to Telegram
+    for entry in new_entries:  # Send all new entries
         guid = entry.get("guid", "N/A")  # GUID of the item
         title = entry.title
         link = entry.link
@@ -73,10 +70,6 @@ else:
 
         # Add the GUID to the sent list
         sent_guids.append(guid)
-
-        # Keep only the latest MAX_SENT_ENTRIES GUIDs
-        if len(sent_guids) > MAX_SENT_ENTRIES:
-            sent_guids.pop(0)  # Remove the oldest entry
 
     # Save the updated sent GUIDs to the file
     with open(sent_guid_file, 'w') as f:
