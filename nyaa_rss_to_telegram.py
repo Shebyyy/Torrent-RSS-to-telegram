@@ -34,7 +34,27 @@ for entry in latest_entries:
     if guid in sent_guids:
         continue
 
-    new_entries.append(entry)
+    # Accessing seeders, leechers, and size correctly
+    seeders = entry.get("nyaa:seeders", "N/A")
+    leechers = entry.get("nyaa:leechers", "N/A")
+    size = entry.get("nyaa:size", "N/A")
+
+    # Add a check if they are still N/A and try accessing them from entry's extensions
+    if seeders == "N/A":
+        seeders = entry.get("extensions", {}).get("nyaa:seeders", "N/A")
+    if leechers == "N/A":
+        leechers = entry.get("extensions", {}).get("nyaa:leechers", "N/A")
+    if size == "N/A":
+        size = entry.get("extensions", {}).get("nyaa:size", "N/A")
+
+    new_entries.append({
+        "guid": guid,
+        "title": entry.title,
+        "link": entry.link,
+        "seeders": seeders,
+        "leechers": leechers,
+        "size": size,
+    })
 
 # Check if there are any new entries to send
 if not new_entries:
@@ -42,12 +62,12 @@ if not new_entries:
 else:
     # Send all new entries to Telegram
     for entry in new_entries:
-        guid = entry.get("guid", "N/A")  # GUID of the item
-        title = entry.title
-        link = entry.link
-        seeders = entry.get("nyaa:seeders", "N/A")  # Accessing nyaa:seeders
-        leechers = entry.get("nyaa:leechers", "N/A")  # Accessing nyaa:leechers
-        size = entry.get("nyaa:size", "N/A")  # Accessing nyaa:size
+        guid = entry["guid"]  # GUID of the item
+        title = entry["title"]
+        link = entry["link"]
+        seeders = entry["seeders"]
+        leechers = entry["leechers"]
+        size = entry["size"]
 
         # Format the message
         message = (
