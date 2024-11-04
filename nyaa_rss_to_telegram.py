@@ -2,6 +2,7 @@ import os
 import feedparser
 import requests
 import json
+import time
 
 # Nyaa RSS feed URL
 RSS_FEED_URL = "https://nyaa.land/?page=rss&c=1_2&f=0"
@@ -49,24 +50,31 @@ else:
         message = (
             f"<b>{title}</b>\n"
             f"Link: <a href='{link}'>Download Torrent</a>\n"
-            f"guid: <a href='{guid}'>Open In Browser</a>\n"
+            f"Guid: <a href='{guid}'>Open In Browser</a>\n"
             f"Seeders: {seeders}\n"
             f"Leechers: {leechers}\n"
             f"Size: {size}\n"
         )
 
-        # Send message to Telegram
-        telegram_api_url = f"https://api.telegram.org/bot{os.environ['TELEGRAM_BOT_TOKEN']}/sendMessage"
-        payload = {
-            'chat_id': os.environ['TELEGRAM_CHAT_ID'],
-            'text': message,
-            'parse_mode': 'HTML'  # Enables HTML formatting
-        }
-        response = requests.post(telegram_api_url, data=payload)
+        # Send message to Telegram with retry logic
+        for attempt in range(5):  # Try up to 5 times
+            telegram_api_url = f"https://api.telegram.org/bot{os.environ['TELEGRAM_BOT_TOKEN']}/sendMessage"
+            payload = {
+                'chat_id': os.environ['TELEGRAM_CHAT_ID'],
+                'text': message,
+                'parse_mode': 'HTML'  # Enables HTML formatting
+            }
+            response = requests.post(telegram_api_url, data=payload)
 
-        # Check for errors
-        if response.status_code != 200:
-            raise Exception(f"Failed to send message: {response.text}")
+            # Check for errors
+            if response.status_code == 200:
+                break  # Exit the retry loop if the request was successful
+            elif response.status_code == 429:  # Rate limit exceeded
+                retry_after = response.json().get("parameters", {}).get("retry_after", 1)
+                print(f"Rate limit exceeded. Retrying after {retry_after} seconds...")
+                time.sleep(retry_after)  # Wait for the specified time before retrying
+            else:
+                raise Exception(f"Failed to send message: {response.text}")
 
         # Add the GUID to the sent list
         sent_guids.append(guid)
