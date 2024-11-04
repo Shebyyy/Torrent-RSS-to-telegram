@@ -16,16 +16,35 @@ if feed.bozo:
 for entry in feed.entries[:5]:  # Adjust the number as needed
     title = entry.title
     link = entry.link
-    seeders = entry.get("nyaa:seeders", "N/A")  # Accessing with namespace
-    leechers = entry.get("nyaa:leechers", "N/A")  # Accessing with namespace
-    size = entry.get("nyaa:size", "N/A")  # Accessing with namespace
+    guid = entry.get("guid", "N/A")  # GUID of the item
+    pub_date = entry.get("published", "N/A")  # Publication date
+    seeders = entry.get("nyaa:seeders", "N/A")  # Seeders
+    leechers = entry.get("nyaa:leechers", "N/A")  # Leechers
+    downloads = entry.get("nyaa:downloads", "N/A")  # Downloads
+    info_hash = entry.get("nyaa:infoHash", "N/A")  # Info hash
+    category_id = entry.get("nyaa:categoryId", "N/A")  # Category ID
+    category = entry.get("nyaa:category", "N/A")  # Category
+    size = entry.get("nyaa:size", "N/A")  # Size
+    comments = entry.get("nyaa:comments", "N/A")  # Comments
+    trusted = entry.get("nyaa:trusted", "N/A")  # Trusted status
+    remake = entry.get("nyaa:remake", "N/A")  # Remake status
 
     # Format the message
     message = (
         f"<b>{title}</b>\n"
-        f"Seeders: {seeders} | Leechers: {leechers}\n"
+        f"Link: <a href='{link}'>Download Torrent</a>\n"
+        f"GUID: {guid}\n"
+        f"Published Date: {pub_date}\n"
+        f"Seeders: {seeders}\n"
+        f"Leechers: {leechers}\n"
+        f"Downloads: {downloads}\n"
+        f"Info Hash: {info_hash}\n"
+        f"Category ID: {category_id}\n"
+        f"Category: {category}\n"
         f"Size: {size}\n"
-        f"<a href='{link}'>Download Torrent</a>"
+        f"Comments: {comments}\n"
+        f"Trusted: {trusted}\n"
+        f"Remake: {remake}\n"
     )
 
     # Send message to Telegram
