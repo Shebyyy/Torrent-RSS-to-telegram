@@ -18,16 +18,16 @@ for entry in feed.entries[:5]:  # Adjust the number as needed
     link = entry.link
     guid = entry.get("guid", "N/A")  # GUID of the item
     pub_date = entry.get("published", "N/A")  # Publication date
-    seeders = entry.get("nyaa:seeders", "N/A")  # Seeders
-    leechers = entry.get("nyaa:leechers", "N/A")  # Leechers
-    downloads = entry.get("nyaa:downloads", "N/A")  # Downloads
-    info_hash = entry.get("nyaa:infoHash", "N/A")  # Info hash
-    category_id = entry.get("nyaa:categoryId", "N/A")  # Category ID
-    category = entry.get("nyaa:category", "N/A")  # Category
-    size = entry.get("nyaa:size", "N/A")  # Size
-    comments = entry.get("nyaa:comments", "N/A")  # Comments
-    trusted = entry.get("nyaa:trusted", "N/A")  # Trusted status
-    remake = entry.get("nyaa:remake", "N/A")  # Remake status
+    seeders = entry.get("nyaa_seeders", "N/A")  # Accessing nyaa:seeders
+    leechers = entry.get("nyaa_leechers", "N/A")  # Accessing nyaa:leechers
+    downloads = entry.get("nyaa_downloads", "N/A")  # Accessing nyaa:downloads
+    info_hash = entry.get("nyaa_infoHash", "N/A")  # Accessing nyaa:infoHash
+    category_id = entry.get("nyaa_categoryId", "N/A")  # Accessing nyaa:categoryId
+    category = entry.get("nyaa_category", "N/A")  # Accessing nyaa:category
+    size = entry.get("nyaa_size", "N/A")  # Accessing nyaa:size
+    comments = entry.get("nyaa_comments", "N/A")  # Accessing nyaa:comments
+    trusted = entry.get("nyaa_trusted", "N/A")  # Accessing nyaa:trusted
+    remake = entry.get("nyaa_remake", "N/A")  # Accessing nyaa:remake
 
     # Format the message
     message = (
