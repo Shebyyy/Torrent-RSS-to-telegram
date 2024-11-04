@@ -22,39 +22,16 @@ feed = feedparser.parse(RSS_FEED_URL)
 if feed.bozo:
     raise Exception("Failed to parse RSS feed.")
 
-# Process only the last 10 entries
-latest_entries = feed.entries[:10]  # Get the last 10 entries
+# Filter new entries
 new_entries = []
-
-# Filter new entries that have not been sent before
-for entry in latest_entries:
+for entry in feed.entries[:10]:  # Get the latest 10 entries
     guid = entry.get("guid", "N/A")  # GUID of the item
 
     # If the GUID has already been sent, skip this entry
     if guid in sent_guids:
         continue
 
-    # Accessing seeders, leechers, and size correctly
-    seeders = entry.get("nyaa:seeders", "N/A")
-    leechers = entry.get("nyaa:leechers", "N/A")
-    size = entry.get("nyaa:size", "N/A")
-
-    # Add a check if they are still N/A and try accessing them from entry's extensions
-    if seeders == "N/A":
-        seeders = entry.get("extensions", {}).get("nyaa:seeders", "N/A")
-    if leechers == "N/A":
-        leechers = entry.get("extensions", {}).get("nyaa:leechers", "N/A")
-    if size == "N/A":
-        size = entry.get("extensions", {}).get("nyaa:size", "N/A")
-
-    new_entries.append({
-        "guid": guid,
-        "title": entry.title,
-        "link": entry.link,
-        "seeders": seeders,
-        "leechers": leechers,
-        "size": size,
-    })
+    new_entries.append(entry)
 
 # Check if there are any new entries to send
 if not new_entries:
@@ -62,12 +39,12 @@ if not new_entries:
 else:
     # Send all new entries to Telegram
     for entry in new_entries:
-        guid = entry["guid"]  # GUID of the item
-        title = entry["title"]
-        link = entry["link"]
-        seeders = entry["seeders"]
-        leechers = entry["leechers"]
-        size = entry["size"]
+        guid = entry.get("guid", "N/A")  # GUID of the item
+        title = entry.title
+        link = entry.link
+        seeders = entry.get("nyaa:seeders", "N/A")  # Accessing nyaa:seeders
+        leechers = entry.get("nyaa:leechers", "N/A")  # Accessing nyaa:leechers
+        size = entry.get("nyaa:size", "N/A")  # Accessing nyaa:size
 
         # Format the message
         message = (
